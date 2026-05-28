@@ -13,6 +13,7 @@ talk.
 from __future__ import annotations
 
 import html
+import json
 import re
 import sys
 from dataclasses import dataclass, field
@@ -294,6 +295,206 @@ td.reco.Reject .verdict { color: var(--rival); }
 .legend .p { color: var(--green); }
 .legend .eq { color: var(--gold); }
 .legend .m { color: var(--rival); }
+
+.profile-bar {
+  padding: 16px 18px;
+  background: #11141b;
+  border-radius: 6px;
+  margin-bottom: 24px;
+  border: 1px solid var(--line);
+}
+.profile-bar label {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+.profile-bar label strong { color: var(--fg); }
+.profile-bar select {
+  width: 100%;
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 10px 12px;
+  font-family: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position: calc(100% - 18px) 50%, calc(100% - 12px) 50%;
+  background-size: 6px 6px;
+  background-repeat: no-repeat;
+}
+.profile-bar select:focus { outline: 1px solid var(--accent); }
+.profile-bar .thresholds {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.profile-bar .thresholds .th-item strong { color: var(--fg); font-weight: 600; }
+.profile-bar .thresholds .th-item .min { color: var(--gold); font-weight: 700; }
+.profile-bar .summary {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 22px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.profile-bar .summary .count { color: var(--fg); font-weight: 700; font-size: 14px; }
+.profile-bar .summary .Buy    .count { color: var(--green); }
+.profile-bar .summary .Wrap   .count { color: var(--gold); }
+.profile-bar .summary .Vendor .count { color: var(--gold); }
+.profile-bar .summary .Build  .count { color: var(--accent); }
+.profile-bar .summary .Defer  .count { color: var(--muted); }
+.profile-bar .summary .Reject .count { color: var(--rival); }
+
+tr.changed td.reco {
+  background: rgba(106, 163, 255, 0.06);
+  border-left: 2px solid var(--accent);
+}
+"""
+
+
+JS = r"""
+// Project profiles ▸ per-gate letter threshold each tool must clear to be 'Buy'.
+// Letters ranked: A+ best, F worst. clears(score, threshold) returns true when score is at-least the threshold.
+const RANK = { "A+": 0, "A": 1, "B": 2, "C": 3, "D": 4, "F": 5 };
+const GATES = ["Obs", "Cost", "Simp", "Corr"];
+
+const PROFILES = {
+  hobby: {
+    name: "Personal / hobby",
+    summary: "Synthetic or public data, throwaway code, single user.",
+    thresholds: { Obs: "F", Cost: "D", Simp: "C", Corr: "D" },
+    lenient: true,
+  },
+  prototype: {
+    name: "Prototype",
+    summary: "< 2 weeks horizon, internal audience, no production traffic.",
+    thresholds: { Obs: "D", Cost: "D", Simp: "B", Corr: "C" },
+    lenient: true,
+  },
+  internal: {
+    name: "Internal product",
+    summary: "Multi-month, business data, team-sized audience.",
+    thresholds: { Obs: "B", Cost: "B", Simp: "B", Corr: "B" },
+    lenient: false,
+  },
+  public: {
+    name: "Public product",
+    summary: "Multi-year, customer data, public audience.",
+    thresholds: { Obs: "A", Cost: "A", Simp: "C", Corr: "A" },
+    lenient: false,
+  },
+  regulated: {
+    name: "Regulated / Compliance",
+    summary: "Regulated/PII; correctness failures cost livelihoods; + Ethics gate.",
+    thresholds: { Obs: "A+", Cost: "A", Simp: "D", Corr: "A+" },
+    lenient: false,
+  },
+};
+
+function clears(score, threshold) {
+  if (!(score in RANK) || !(threshold in RANK)) return true;
+  return RANK[score] <= RANK[threshold];
+}
+
+function letterGap(score, threshold) {
+  return RANK[score] - RANK[threshold];
+}
+
+function verdictFor(scores, profile) {
+  if (!profile) return null;
+  const failing = GATES.filter(g => !clears(scores[g], profile.thresholds[g]));
+  if (failing.length === 0) {
+    return { verdict: "Buy", note: "clears all thresholds" };
+  }
+  // Any gate at F when the project's threshold is anything other than F is irrecoverable.
+  for (const g of failing) {
+    if (scores[g] === "F" && profile.thresholds[g] !== "F") {
+      return { verdict: "Reject", note: g + " at F (irrecoverable)" };
+    }
+  }
+  if (failing.length === 1) {
+    const g = failing[0];
+    const gap = letterGap(scores[g], profile.thresholds[g]);
+    if (g === "Obs")  return { verdict: gap >= 2 ? "Vendor" : "Wrap", note: g + " below by " + gap };
+    if (g === "Cost") return { verdict: "Wrap",   note: "budget hook for Cost" };
+    if (g === "Simp") return { verdict: "Build",  note: "pick a different tool" };
+    if (g === "Corr") return { verdict: gap >= 2 ? "Defer" : "Wrap", note: "confirmation hook for Corr" };
+  }
+  // 2+ failures
+  if (profile.lenient) return { verdict: "Defer", note: failing.length + " gates fail: " + failing.join(", ") };
+  return { verdict: "Reject", note: failing.length + " gates fail: " + failing.join(", ") };
+}
+
+function applyProfile(key) {
+  const profile = PROFILES[key] || null;
+  const thresholdsEl = document.getElementById("profile-thresholds");
+  const summaryEl = document.getElementById("profile-summary");
+  const counts = { Buy: 0, Wrap: 0, Vendor: 0, Build: 0, Defer: 0, Reject: 0 };
+  const rows = document.querySelectorAll("tr[data-slug]");
+
+  for (const tr of rows) {
+    const scores = JSON.parse(tr.getAttribute("data-scores"));
+    const origVerdict = tr.getAttribute("data-orig-verdict");
+    const origProject = tr.getAttribute("data-orig-project");
+    const recoTd = tr.querySelector("td.reco");
+    const verdictSpan = recoTd.querySelector(".verdict");
+    const projSpan = recoTd.querySelector(".proj");
+
+    // Reset reco class
+    const origCls = recoTd.getAttribute("data-orig-cls") || "";
+    recoTd.className = "reco " + origCls;
+
+    if (profile) {
+      const r = verdictFor(scores, profile);
+      verdictSpan.textContent = r.verdict;
+      if (projSpan) projSpan.textContent = "for: " + profile.name + " ▸ " + r.note;
+      recoTd.className = "reco " + r.verdict;
+      tr.classList.toggle("changed", r.verdict !== origVerdict);
+      counts[r.verdict] = (counts[r.verdict] || 0) + 1;
+    } else {
+      verdictSpan.textContent = origVerdict || "—";
+      if (projSpan) projSpan.textContent = origProject ? "for: " + origProject : "";
+      tr.classList.remove("changed");
+      counts[origVerdict] = (counts[origVerdict] || 0) + 1;
+    }
+  }
+
+  if (profile) {
+    thresholdsEl.style.display = "flex";
+    thresholdsEl.innerHTML =
+      '<div class="th-item"><strong>' + profile.name + ':</strong> <em>' + profile.summary + '</em></div>' +
+      GATES.map(g => '<div class="th-item">' + g + ' ≥ <span class="min">' + profile.thresholds[g] + '</span></div>').join("");
+  } else {
+    thresholdsEl.style.display = "none";
+    thresholdsEl.innerHTML = "";
+  }
+
+  const total = Object.values(counts).reduce((a, b) => a + b, 0);
+  summaryEl.innerHTML =
+    '<span><strong>' + total + '</strong> tools ▸ </span>' +
+    ["Buy", "Wrap", "Vendor", "Build", "Defer", "Reject"]
+      .filter(v => counts[v] > 0)
+      .map(v => '<span class="' + v + '"><span class="count">' + counts[v] + '</span> ' + v + '</span>')
+      .join("");
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+  const sel = document.getElementById("profile-select");
+  sel.addEventListener("change", function() { applyProfile(sel.value); });
+  applyProfile(sel.value);  // initial paint for original verdicts (computes counts)
+});
 """
 
 
@@ -352,12 +553,20 @@ def render_row(a: Audit) -> str:
         if a.project else ""
     )
     reco = (
-        f'<td class="reco {reco_cls}">'
+        f'<td class="reco {reco_cls}" data-orig-cls="{reco_cls}">'
         f'<span class="verdict">{html.escape(a.recommendation or "—")}</span>'
         f'{proj_html}'
         f'</td>'
     )
-    return f"<tr>{tool_cell}{''.join(cells)}{reco}{usecase}</tr>"
+    # data-* attributes drive the project-profile selector JS below
+    scores_json = html.escape(json.dumps(a.scores), quote=True)
+    data_attrs = (
+        f'data-slug="{html.escape(a.slug)}" '
+        f'data-scores=\'{scores_json}\' '
+        f'data-orig-verdict="{html.escape(a.recommendation or "")}" '
+        f'data-orig-project="{html.escape(a.project)}"'
+    )
+    return f"<tr {data_attrs}>{tool_cell}{''.join(cells)}{reco}{usecase}</tr>"
 
 
 def render(audits: list[Audit]) -> str:
@@ -395,6 +604,20 @@ def render(audits: list[Audit]) -> str:
   <span><span class="swatch m">F</span> failure ▸ drop</span>
   <span style="margin-left: auto;"><strong>Rule</strong> ▸ one failing gate = drop. No averaging.</span>
 </div>
+
+<div class="profile-bar">
+  <label for="profile-select"><strong>Project profile</strong> ▸ re-verdict every tool for a specific project:</label>
+  <select id="profile-select">
+    <option value="original">▸ Original audit verdicts (per-file)</option>
+    <option value="hobby">Personal / hobby ▸ synthetic data, throwaway</option>
+    <option value="prototype">Prototype ▸ &lt; 2 weeks, internal</option>
+    <option value="internal">Internal product ▸ months, business data</option>
+    <option value="public">Public product ▸ years, customer data</option>
+    <option value="regulated">Regulated ▸ PII / compliance / + Ethics</option>
+  </select>
+  <div id="profile-thresholds" class="thresholds" style="display:none;"></div>
+  <div id="profile-summary" class="summary"></div>
+</div>
 """
 
     return f"""<!doctype html>
@@ -423,8 +646,12 @@ Generated from <code>examples/*.md</code>. The rubric lives in
 <a href="https://github.com/mbrian23/claude-tool-audit/blob/main/references/gates.md">references/gates.md</a>
 — the rule is <strong>no averaging, no summing</strong>: a single failing gate drops the tool, regardless of the others.
 Scores are per-<em>use case</em>, not per-tool. Same primitive used wrong = different scores.
+The profile selector above re-verdicts every tool from the same letter scores against different project budgets — the scores don't change, the threshold does.
 </p>
 </main>
+<script>
+{JS}
+</script>
 </body>
 </html>
 """
