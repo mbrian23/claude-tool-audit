@@ -24,11 +24,14 @@ LETTER_RANK = {letter: rank for rank, letter in enumerate(LETTERS)}
 LETTER_CLASS = {"A+": "pp", "A": "p", "B": "eq", "C": "eq", "D": "m", "F": "mm"}
 
 SCORES_HEADING = re.compile(r"^##\s+Scores\s*$", re.MULTILINE)
-USE_CASE = re.compile(r"^\*\*Use case:\*\*\s*(.+?)\s*$", re.MULTILINE)
+# Multi-line field capture: matches the value across lines until next blank line,
+# next **Field:**, or markdown structure (#, |). Use re.DOTALL.
+USE_CASE = re.compile(r"\*\*Use case:\*\*\s*(.+?)(?=\n\s*\n|\n\*\*[A-Z]|\n#|\n\|)", re.DOTALL)
+PROJECT = re.compile(r"\*\*Project context assumed:\*\*\s*(.+?)(?=\n\s*\n|\n\*\*[A-Z]|\n#|\n\|)", re.DOTALL)
 ROW = re.compile(r"^\|\s*([A-Za-z][A-Za-z+ ]*?)\s*\|\s*(A\+|[ABCDF])\s*\|\s*([^|]*?)\s*\|\s*$")
 SOURCE = re.compile(r"^\*\*Source:\*\*\s*(.+?)\s*$", re.MULTILINE)
 TYPE = re.compile(r"^\*\*Type:\*\*\s*(.+?)\s*$", re.MULTILINE)
-INSTALL = re.compile(r"^\*\*Install:\*\*\s*(.+?)\s*$", re.MULTILINE)
+INSTALL = re.compile(r"\*\*Install:\*\*\s*(.+?)(?=\n\s*\n|\n\*\*[A-Z]|\n#|\n\|)", re.DOTALL)
 RECO = re.compile(r"^\*\*(Build|Buy|Wrap|Vendor|Defer|Reject)\*\*", re.MULTILINE)
 HEADING = re.compile(r"^#\s+(.+?)\s*$", re.MULTILINE)
 GITHUB_RAW_BASE = "https://github.com/mbrian23/claude-tool-audit/blob/main/examples"
@@ -42,6 +45,7 @@ class Audit:
     source: str = ""
     type_: str = ""
     install: str = ""
+    project: str = ""
     use_case: str = ""
     scores: dict[str, str] = field(default_factory=dict)
     recommendation: str = ""
@@ -71,7 +75,11 @@ def parse(path: Path) -> Audit:
 
     i = INSTALL.search(text)
     if i:
-        a.install = i.group(1).strip()
+        a.install = collapse_ws(i.group(1))
+
+    pr = PROJECT.search(text)
+    if pr:
+        a.project = collapse_ws(pr.group(1))
 
     m = SCORES_HEADING.search(text)
     if not m:
@@ -80,7 +88,7 @@ def parse(path: Path) -> Audit:
 
     uc = USE_CASE.search(body)
     if uc:
-        a.use_case = uc.group(1)
+        a.use_case = collapse_ws(uc.group(1))
 
     for line in body.splitlines():
         if line.startswith("##"):
@@ -100,6 +108,11 @@ def parse(path: Path) -> Audit:
         a.recommendation = r.group(1)
 
     return a
+
+
+def collapse_ws(s: str) -> str:
+    """Collapse runs of whitespace (incl. newlines from multi-line markdown captures) to single spaces."""
+    return re.sub(r"\s+", " ", s).strip()
 
 
 def linkify_source(src: str) -> str:
@@ -214,18 +227,34 @@ td.usecase .src a:hover { color: var(--accent); }
 table.audits { table-layout: auto; }
 table.audits td, table.audits th { white-space: normal; }
 td.reco {
-  font-weight: 600;
-  text-align: center;
-  width: 80px;
+  text-align: left;
+  width: 220px;
   font-size: 12px;
   letter-spacing: 0.04em;
 }
-td.reco.Buy    { color: var(--green); }
-td.reco.Wrap   { color: var(--gold); }
-td.reco.Vendor { color: var(--gold); }
-td.reco.Build  { color: var(--accent); }
-td.reco.Defer  { color: var(--muted); }
-td.reco.Reject { color: var(--rival); }
+td.reco .verdict {
+  display: block;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+td.reco .proj {
+  display: block;
+  color: var(--muted);
+  font-weight: 400;
+  font-size: 11px;
+  letter-spacing: 0;
+  text-transform: none;
+  margin-top: 4px;
+  font-style: italic;
+}
+td.reco.Buy    .verdict { color: var(--green); }
+td.reco.Wrap   .verdict { color: var(--gold); }
+td.reco.Vendor .verdict { color: var(--gold); }
+td.reco.Build  .verdict { color: var(--accent); }
+td.reco.Defer  .verdict { color: var(--muted); }
+td.reco.Reject .verdict { color: var(--rival); }
 
 .section-head {
   margin: 32px 0 12px;
@@ -318,7 +347,16 @@ def render_row(a: Audit) -> str:
         f'</td>'
     )
     reco_cls = a.recommendation if a.recommendation else ""
-    reco = f'<td class="reco {reco_cls}">{html.escape(a.recommendation or "—")}</td>'
+    proj_html = (
+        f'<span class="proj">for: {html.escape(a.project)}</span>'
+        if a.project else ""
+    )
+    reco = (
+        f'<td class="reco {reco_cls}">'
+        f'<span class="verdict">{html.escape(a.recommendation or "—")}</span>'
+        f'{proj_html}'
+        f'</td>'
+    )
     return f"<tr>{tool_cell}{''.join(cells)}{reco}{usecase}</tr>"
 
 
