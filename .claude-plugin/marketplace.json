@@ -1,0 +1,32 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "claude-tool-audit",
+  "description": "Single-plugin marketplace ▸ the claude-tool-audit auditor itself.",
+  "owner": {
+    "name": "mbrian23",
+    "url": "https://github.com/mbrian23"
+  },
+  "plugins": [
+    {
+      "name": "claude-tool-audit",
+      "source": "./",
+      "description": "Interactive auditor for tools added to Claude Code projects. Scores candidates against four gates — Observability, Cost, Simplicity, Correctness — on a letter scale (A+..F). Helps set per-gate project budgets and pick a vendoring strategy.",
+      "version": "0.1.0",
+      "author": {
+        "name": "mbrian23"
+      },
+      "homepage": "https://github.com/mbrian23/claude-tool-audit",
+      "repository": "https://github.com/mbrian23/claude-tool-audit",
+      "license": "MIT",
+      "keywords": [
+        "audit",
+        "claude-code",
+        "mcp",
+        "scoring",
+        "budget",
+        "vendoring",
+        "framework"
+      ]
+    }
+  ]
+}

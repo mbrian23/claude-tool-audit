@@ -2,25 +2,22 @@
 
 Interactive auditor for tools you're considering adding to a Claude Code project.
 
-Scores candidate tools (MCP servers, hooks, skills, sub-agents, third-party CLIs)
-against **four gates** — **Obs · Cost · Simp · Corr** — on a letter scale
-(A+ · A · B · C · D · F). The rubric is the talk's `gates-scored-tools.md`
-made runnable: per-use-case scoring, no averaging, **one failing gate = drop**.
+Scores candidates against **four gates** on a letter scale (A+ · A · B · C · D · F):
+
+- **Obs** ▸ **Observability & Ownership** — how it works *inside*. Scannable? Auditable supply chain? No black box?
+- **Cost** — `$`/request, `$`/run, **tokens too**. The fast modes are great and expensive.
+- **Simp** ▸ **Simplicity & Maintainability** — will it make sense in 3 months? Can a teammate run it without you?
+- **Corr** ▸ **Correctness of Output** — deterministic-enough? Verifiable? **Falsifiable?** Or running on faith?
+
+The rubric is per-use-case (same primitive used differently scores differently),
+no averaging, **one failing gate = drop**.
 
 Also helps set a **per-gate budget** for a new project and pick a **vendoring
 strategy** (build / buy / wrap / vendor / defer) per category.
 
+Live corpus of 29+ worked audits ▸ [**mbrian23.github.io/claude-tool-audit**](https://mbrian23.github.io/claude-tool-audit/)
+
 ---
-
-## The four gates
-
-- **Obs ▸ Observability & Ownership** — how it works *inside*. Scannable? Auditable supply chain? No black box?
-- **Cost** — $/request, $/run, **tokens too**. The fast modes are great and expensive.
-- **Simp ▸ Simplicity & Maintainability** — will it make sense in 3 months? Can a teammate run it without you?
-- **Corr ▸ Correctness of Output** — deterministic-enough? Verifiable? Falsifiable? Or running on faith?
-
-Your project may add **one fifth gate** (Ethics / Privacy / Latency / Compliance)
-if it actually changes a decision the four gates don't.
 
 ## Why letters, not numbers
 
@@ -28,41 +25,86 @@ The four gates aren't directly comparable, and you **can't sum or average them**
 A great `Corr` doesn't buy back a failing `Obs`. The letter scale forces a per-gate
 verdict; the engineering decision lives in the threshold, not the aggregate.
 
-> Can't decide A or B? Pick B. Can't decide D or F? Pick F.
+The full scale:
+
+| Letter | Meaning |
+|--------|---------|
+| **A+** | Exemplary ▸ best-in-class on this gate |
+| **A**  | Good ▸ a strong reason to pick it |
+| **B**  | Acceptable ▸ within budget for most projects |
+| **C**  | Mediocre ▸ wouldn't pick *for this reason* |
+| **D**  | Poor ▸ noticeably weak |
+| **F**  | Failure ▸ a clear miss; drop it for this use case |
+
+> Can't decide A or B? Pick B. Can't decide D or F? Pick F. The letter forces a verdict; the *gap* is the warning.
+
+A project may legitimately add **one fifth gate** (Ethics, Privacy, Latency,
+Compliance) when its profile demands it.
 
 ---
 
-## Install (local)
+## Install
 
-```bash
-git clone https://github.com/mbrian23/claude-tool-audit ~/plugins/claude-tool-audit
-# Then in Claude Code:
-/plugin install ~/plugins/claude-tool-audit
+This repo is itself a single-plugin marketplace. Install via the standard Claude
+Code plugin flow — no special flags, no local clones required.
+
+```text
+# Inside Claude Code:
+/plugin marketplace add mbrian23/claude-tool-audit
+/plugin install claude-tool-audit@claude-tool-audit
 ```
 
-Or test without installing:
+Then restart the session (or run `/plugin reload`) so the skills register.
+
+### Updating
+
+```text
+/plugin marketplace update claude-tool-audit
+/plugin install claude-tool-audit@claude-tool-audit
+```
+
+### Removing
+
+```text
+/plugin uninstall claude-tool-audit@claude-tool-audit
+/plugin marketplace remove claude-tool-audit
+```
+
+### Local development
+
+If you want to hack on the plugin itself:
 
 ```bash
-cc --plugin-dir ~/plugins/claude-tool-audit
+git clone https://github.com/mbrian23/claude-tool-audit ~/code/claude-tool-audit
 ```
+
+```text
+# In Claude Code, add the local path as a marketplace:
+/plugin marketplace add ~/code/claude-tool-audit
+/plugin install claude-tool-audit@claude-tool-audit
+```
+
+---
 
 ## Use
 
-| Skill | Trigger | What it does |
-|-------|---------|--------------|
-| `audit-tool` | `/claude-tool-audit:audit-tool <tool-name>` | Walks you through scoring one candidate against the four gates **for a specific use case**. Produces a scored markdown file `compare-scores.py` can parse. |
-| `audit-project` | `/claude-tool-audit:audit-project` | Scans `.claude/`, plugin configs, `.mcp.json`, hooks, sub-agents, permission entries in the current repo and audits the portfolio. |
-| `budget-planner` | `/claude-tool-audit:budget-planner` | Interactive scoping → recommends a **letter threshold per gate**, picks a vendoring strategy, optionally writes `budget.md` and `vendoring.md`. |
+Three user-invokable slash commands plus an auto-trigger knowledge skill.
 
-A fourth skill, `scoring-fundamentals`, auto-triggers when you ask about scoring, gates, or risk evaluation.
+| Command | What it does |
+|---------|--------------|
+| `/claude-tool-audit:audit-tool <tool>` | Walks you through scoring one candidate against the four gates **for a specific use case**. Produces a scored markdown file `compare-scores.py` can parse. |
+| `/claude-tool-audit:audit-project` | Scans `.claude/`, plugin configs, `.mcp.json`, hooks, sub-agents, permission entries in the current repo and audits the portfolio. |
+| `/claude-tool-audit:budget-planner` | Interactive scoping → recommends a **letter threshold per gate**, picks a vendoring strategy, optionally writes `budget.md` and `vendoring.md`. |
+
+The `scoring-fundamentals` skill auto-triggers when you ask about scoring, gates, or risk evaluation.
 
 ## What's encoded
 
 - `references/gates.md` — the four gates with A+..F per-letter rubrics, threshold mindset, fifth-gate guidance.
-- `references/black-box-risks.md` — four black-box smells with **letter knocks** (each smell drops a letter on listed gates).
+- `references/black-box-risks.md` — five black-box smells with **letter knocks** (the first is **install-time code execution** — runs before runtime surface or auth scope, since neither matters if the install already ran code you didn't see).
 - `references/cost-risks.md` — context amplification, agent recursion, unbounded calls; **letter caps on Cost**.
 - `references/vendoring.md` — Build / Buy / Wrap / Vendor / Defer; tactic-to-gate matrix.
-- `examples/*.md` — worked audits using the canonical letter Scores table so `scripts/compare-scores.py` can parse them.
+- `examples/*.md` — 29+ worked audits using the canonical letter Scores table so `scripts/compare-scores.py` can parse them.
 
 ## Compare scores
 
@@ -91,12 +133,19 @@ vercel-mcp            C     A     A     B   C (Obs)  Deploy automation in a Verc
 The contrast between `claude-md-tight` and `claude-md-bloated` is the canonical
 demonstration: **same tool, different use case, very different scores**.
 
+## Web view
+
+The full corpus is published as a static site for QR-scanning during the talk:
+[**mbrian23.github.io/claude-tool-audit**](https://mbrian23.github.io/claude-tool-audit/).
+The page is regenerated by `scripts/build-site.py` from the `examples/` directory
+and served from `docs/` via GitHub Pages.
+
 ## Reproducing the plugin
 
 Built end-to-end via the `/plugin-dev:create-plugin` workflow against the
 [meetup-27-may](https://github.com/mbrian23/meetup-27-may) talk repo. The rubric
-is the talk's `gates-scored-tools.md` (with the letter scale from slide 17 of the
-deck) made runnable.
+is the talk's four-gate letter scale (Obs / Cost / Simp / Corr · A+..F) made
+runnable.
 
 See [`MILESTONES.md`](./MILESTONES.md) for the build sequence.
 
