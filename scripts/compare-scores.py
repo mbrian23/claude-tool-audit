@@ -126,7 +126,7 @@ def main(argv: list[str]) -> int:
         print(f"no examples/ directory at {examples}", file=sys.stderr)
         return 1
 
-    files = [parse(p) for p in sorted(examples.glob("*.md"))]
+    files = [parse(p) for p in sorted(examples.glob("*.md")) if not p.name.startswith("_")]
     if not files:
         print(f"no example files found in {examples}", file=sys.stderr)
         return 1

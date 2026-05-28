@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>claude-tool-audit ▸ reviewed tools</title>
+<style>
+:root {
+  --bg: #0a0c10;
+  --fg: #e6e8ee;
+  --muted: #8a93a6;
+  --line: #1c2230;
+  --team: #2ff3c8;
+  --rival: #ff2e74;
+  --gold: #ffd166;
+  --green: #9ce374;
+  --accent: #6aa3ff;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  margin: 0;
+  padding: 32px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+header {
+  max-width: 1100px;
+  margin: 0 auto 28px;
+}
+header h1 {
+  font-size: 28px;
+  margin: 0 0 4px;
+  letter-spacing: -0.01em;
+}
+header .sub {
+  color: var(--muted);
+}
+header .meta {
+  margin-top: 14px;
+  color: var(--muted);
+  font-size: 13px;
+}
+header a { color: var(--accent); text-decoration: none; }
+header a:hover { text-decoration: underline; }
+
+main {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+table.audits {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 32px;
+}
+table.audits th, table.audits td {
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+  text-align: left;
+}
+table.audits th {
+  background: #11141b;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 11px;
+  font-weight: 500;
+}
+table.audits td.gate {
+  text-align: center;
+  width: 48px;
+  font-weight: 600;
+  font-size: 16px;
+}
+table.audits td.gate.pp { color: var(--team); text-shadow: 0 0 10px rgba(47, 243, 200, 0.6); }
+table.audits td.gate.p  { color: var(--green); }
+table.audits td.gate.eq { color: var(--gold); }
+table.audits td.gate.m  { color: var(--rival); text-shadow: 0 0 8px rgba(255, 46, 116, 0.5); }
+table.audits td.gate.mm { color: var(--rival); background: rgba(255, 46, 116, 0.12); text-shadow: 0 0 10px rgba(255, 46, 116, 0.8); }
+
+td.tool a {
+  color: var(--fg);
+  text-decoration: none;
+  font-weight: 600;
+}
+td.tool a:hover { color: var(--accent); }
+td.tool .type { color: var(--muted); font-size: 11px; display: block; margin-top: 2px; }
+td.usecase { color: var(--fg); max-width: 360px; }
+td.usecase .src { display: block; color: var(--muted); font-size: 11px; margin-top: 4px; }
+td.usecase .src a { color: var(--muted); text-decoration: none; }
+td.usecase .src a:hover { color: var(--accent); }
+td.reco {
+  font-weight: 600;
+  text-align: center;
+  width: 80px;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+td.reco.Buy    { color: var(--green); }
+td.reco.Wrap   { color: var(--gold); }
+td.reco.Vendor { color: var(--gold); }
+td.reco.Build  { color: var(--accent); }
+td.reco.Defer  { color: var(--muted); }
+td.reco.Reject { color: var(--rival); }
+
+.section-head {
+  margin: 32px 0 12px;
+  color: var(--muted);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 6px;
+}
+
+.footer {
+  margin-top: 32px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.footer a { color: var(--accent); }
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 14px;
+  background: #11141b;
+  border-radius: 6px;
+  margin-bottom: 24px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.legend strong { color: var(--fg); }
+.legend .swatch {
+  display: inline-block;
+  width: 22px;
+  text-align: center;
+  font-weight: 600;
+}
+.legend .pp { color: var(--team); }
+.legend .p { color: var(--green); }
+.legend .eq { color: var(--gold); }
+.legend .m { color: var(--rival); }
+</style>
+</head>
+<body>
+<header>
+<h1>claude-tool-audit</h1>
+<p class="sub">Tools reviewed against the four gates — Obs · Cost · Simp · Corr · letter scale A+..F</p>
+<p class="meta">
+Plugin repo ▸ <a href="https://github.com/mbrian23/claude-tool-audit">github.com/mbrian23/claude-tool-audit</a>
+&nbsp;•&nbsp; Talk ▸ <a href="https://github.com/mbrian23/meetup-27-may">meetup-27-may</a>
+&nbsp;•&nbsp; Built with <code>scripts/build-site.py</code>
+</p>
+</header>
+<main>
+
+<div class="legend">
+  <span><strong>Scale</strong></span>
+  <span><span class="swatch pp">A+</span> exemplary</span>
+  <span><span class="swatch p">A</span> good</span>
+  <span><span class="swatch eq">B/C</span> acceptable / mediocre</span>
+  <span><span class="swatch m">D</span> poor</span>
+  <span><span class="swatch m">F</span> failure ▸ drop</span>
+  <span style="margin-left: auto;"><strong>Rule</strong> ▸ one failing gate = drop. No averaging.</span>
+</div>
+
+
+<div class="section-head">First-party primitives</div>
+<table class="audits">
+  <thead>
+    <tr>
+      <th>Tool</th>
+      <th>Obs</th>
+      <th>Cost</th>
+      <th>Simp</th>
+      <th>Corr</th>
+      <th>Verdict</th>
+      <th>Use case &amp; source</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr><td class="tool"><a href="https://github.com/mbrian23/claude-tool-audit/blob/main/examples/permissions.md" target="_blank" rel="noopener">Permissions ▸ allow / ask / deny</a><span class="type">First-party primitive (config layer, before any plugin)</span></td><td class="gate pp">A+</td><td class="gate pp">A+</td><td class="gate pp">A+</td><td class="gate pp">A+</td><td class="reco Buy">Buy</td><td class="usecase">The lightest fix in the decision framework — promoting a repeated<span class="src"><a href="https://code.claude.com/docs/en/permissions" target="_blank" rel="noopener">https://code.claude.com/docs/en/permissions</a></span></td></tr>
+<tr><td class="tool"><a href="https://github.com/mbrian23/claude-tool-audit/blob/main/examples/claude-md-tight.md" target="_blank" rel="noopener">CLAUDE.md ▸ tight</a><span class="type">First-party primitive (always-on context file)</span></td><td class="gate pp">A+</td><td class="gate p">A</td><td class="gate pp">A+</td><td class="gate p">A</td><td class="reco Buy">Buy</td><td class="usecase">Project conventions and always-on facts — under 200 lines, only<span class="src"><a href="https://code.claude.com/docs/en/memory" target="_blank" rel="noopener">https://code.claude.com/docs/en/memory</a></span></td></tr>
+<tr><td class="tool"><a href="https://github.com/mbrian23/claude-tool-audit/blob/main/examples/claude-md-bloated.md" target="_blank" rel="noopener">CLAUDE.md ▸ bloated</a><span class="type">First-party primitive (always-on context file)</span></td><td class="gate eq">C</td><td class="gate m">D</td><td class="gate eq">C</td><td class="gate m">D</td><td class="reco ">—</td><td class="usecase">Trying to use `CLAUDE.md` for *enforcement* — listing imperative<span class="src">Same primitive as `claude-md-tight.md`. Same docs, same file.</span></td></tr>
+<tr><td class="tool"><a href="https://github.com/mbrian23/claude-tool-audit/blob/main/examples/hooks-lint.md" target="_blank" rel="noopener">Hooks ▸ surgical (lint / secret-scan)</a><span class="type">First-party primitive (PreToolUse / PostToolUse / Stop)</span></td><td class="gate pp">A+</td><td class="gate pp">A+</td><td class="gate p">A</td><td class="gate pp">A+</td><td class="reco Buy">Buy</td><td class="usecase">Surgical hook — one hook, one concern, fast. E.g. lint on file<span class="src"><a href="https://code.claude.com/docs/en/hooks" target="_blank" rel="noopener">https://code.claude.com/docs/en/hooks</a></span></td></tr>
+<tr><td class="tool"><a href="https://github.com/mbrian23/claude-tool-audit/blob/main/examples/hooks-chained.md" target="_blank" rel="noopener">Hooks ▸ chained external (the wrong use)</a><span class="type">First-party primitive (PreToolUse / PostToolUse / Stop)</span></td><td class="gate eq">C</td><td class="gate m">D</td><td class="gate m">D</td><td class="gate eq">C</td><td class="reco ">—</td><td class="usecase">&quot;Smart&quot; hook stack — 5 chained, external API calls, LLM in the<span class="src">Same primitive as `hooks-lint.md`. Same docs.</span></td></tr>
+<tr><td class="tool"><a href="https://github.com/mbrian23/claude-tool-audit/blob/main/examples/auto-memory.md" target="_blank" rel="noopener">Auto memory</a><span class="type">First-party primitive</span></td><td class="gate eq">C</td><td class="gate eq">C</td><td class="gate p">A</td><td class="gate eq">C</td><td class="reco Wrap">Wrap</td><td class="usecase">Persistent cross-conversation context — user profile, feedback,<span class="src">Claude Code persistent file-based memory at `~/.claude/projects/.../memory/`</span></td></tr>
+  </tbody>
+</table>
+
+<div class="section-head">Models</div>
+<table class="audits">
+  <thead>
+    <tr>
+      <th>Tool</th>
+      <th>Obs</th>
+      <th>Cost</th>
+      <th>Simp</th>
+      <th>Corr</th>
+      <th>Verdict</th>
+      <th>Use case &amp; source</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr><td class="tool"><a href="https://github.com/mbrian23/claude-tool-audit/blob/main/examples/sonnet-model.md" target="_blank" rel="noopener">Sonnet (Claude Sonnet 4.6)</a><span class="type">Model selection</span></td><td class="gate p">A</td><td class="gate p">A</td><td class="gate pp">A+</td><td class="gate p">A</td><td class="reco Buy">Buy</td><td class="usecase">Default for high-volume / context-heavy work — Sonnet is plenty for<span class="src">Anthropic — first-party model</span></td></tr>
+<tr><td class="tool"><a href="https://github.com/mbrian23/claude-tool-audit/blob/main/examples/haiku-model.md" target="_blank" rel="noopener">Haiku (Claude Haiku 4.5)</a><span class="type">Model selection</span></td><td class="gate p">A</td><td class="gate pp">A+</td><td class="gate pp">A+</td><td class="gate eq">C</td><td class="reco Buy">Buy</td><td class="usecase">Sub-agent workers and cheap-model audit hooks — Haiku is the floor;<span class="src">Anthropic — first-party model</span></td></tr>
+  </tbody>
+</table>
+
+<div class="section-head">MCP servers</div>
+<table class="audits">
+  <thead>
+    <tr>
+      <th>Tool</th>
+      <th>Obs</th>
+      <th>Cost</th>
+      <th>Simp</th>
+      <th>Corr</th>
+      <th>Verdict</th>
+      <th>Use case &amp; source</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr><td class="tool"><a href="https://github.com/mbrian23/claude-tool-audit/blob/main/examples/playwright-mcp.md" target="_blank" rel="noopener">Playwright MCP</a><span class="type">MCP server (stdio, runs locally)</span></td><td class="gate p">A</td><td class="gate p">A</td><td class="gate p">A</td><td class="gate pp">A+</td><td class="reco Wrap">Wrap</td><td class="usecase">UI verification on internal product — real browser checks during<span class="src"><a href="https://github.com/microsoft/playwright-mcp" target="_blank" rel="noopener">https://github.com/microsoft/playwright-mcp</a></span></td></tr>
+<tr><td class="tool"><a href="https://github.com/mbrian23/claude-tool-audit/blob/main/examples/context7-mcp.md" target="_blank" rel="noopener">Context7 MCP</a><span class="type">MCP server (hosted, HTTP)</span></td><td class="gate m">D</td><td class="gate eq">C</td><td class="gate pp">A+</td><td class="gate p">A</td><td class="reco Vendor">Vendor</td><td class="usecase">Live library docs for fast-moving APIs during development — better<span class="src"><a href="https://github.com/upstash/context7" target="_blank" rel="noopener">https://github.com/upstash/context7</a></span></td></tr>
+<tr><td class="tool"><a href="https://github.com/mbrian23/claude-tool-audit/blob/main/examples/slack-mcp.md" target="_blank" rel="noopener">Slack MCP</a><span class="type">MCP server (hosted, OAuth bearer)</span></td><td class="gate eq">C</td><td class="gate p">A</td><td class="gate p">A</td><td class="gate eq">B</td><td class="reco Wrap">Wrap</td><td class="usecase">Ops/on-call automation — reading channel state and posting status<span class="src">Anthropic-hosted MCP server, OAuth-based</span></td></tr>
+<tr><td class="tool"><a href="https://github.com/mbrian23/claude-tool-audit/blob/main/examples/vercel-mcp.md" target="_blank" rel="noopener">Vercel MCP</a><span class="type">MCP server (hosted, OAuth bearer)</span></td><td class="gate eq">C</td><td class="gate p">A</td><td class="gate p">A</td><td class="gate eq">B</td><td class="reco Wrap">Wrap</td><td class="usecase">Deploy automation in a Vercel-hosted project — log queries,<span class="src">Vercel-hosted MCP server, OAuth-based</span></td></tr>
+<tr><td class="tool"><a href="https://github.com/mbrian23/claude-tool-audit/blob/main/examples/gmail-drive-mcp.md" target="_blank" rel="noopener">Gmail / Drive MCP (claude.ai-hosted)</a><span class="type">MCP server (hosted, OAuth bearer)</span></td><td class="gate m">D</td><td class="gate p">A</td><td class="gate pp">A+</td><td class="gate p">A</td><td class="reco Buy">Buy</td><td class="usecase">Personal email and document automation on a personal account — not<span class="src">Anthropic claude.ai built-in MCP</span></td></tr>
+  </tbody>
+</table>
+
+<div class="section-head">Plugins &amp; frameworks</div>
+<table class="audits">
+  <thead>
+    <tr>
+      <th>Tool</th>
+      <th>Obs</th>
+      <th>Cost</th>
+      <th>Simp</th>
+      <th>Corr</th>
+      <th>Verdict</th>
+      <th>Use case &amp; source</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr><td class="tool"><a href="https://github.com/mbrian23/claude-tool-audit/blob/main/examples/pr-review-toolkit.md" target="_blank" rel="noopener">pr-review-toolkit</a><span class="type">Plugin (6 specialized review sub-agents)</span></td><td class="gate p">A</td><td class="gate eq">C</td><td class="gate eq">C</td><td class="gate pp">A+</td><td class="reco Wrap">Wrap</td><td class="usecase">Pre-merge review for non-trivial PRs where catching silent failures<span class="src">Anthropic-published plugin (in this marketplace)</span></td></tr>
+<tr><td class="tool"><a href="https://github.com/mbrian23/claude-tool-audit/blob/main/examples/obra-superpowers.md" target="_blank" rel="noopener">obra/superpowers</a><span class="type">Plugin (sub-agent methodology — TDD + brainstorming + 2-stage review)</span></td><td class="gate p">A</td><td class="gate m">D</td><td class="gate m">D</td><td class="gate pp">A+</td><td class="reco Wrap">Wrap</td><td class="usecase">Production code where correctness justifies the bill — adoption of<span class="src"><a href="https://github.com/obra/superpowers" target="_blank" rel="noopener">https://github.com/obra/superpowers</a></span></td></tr>
+<tr><td class="tool"><a href="https://github.com/mbrian23/claude-tool-audit/blob/main/examples/claude-flow.md" target="_blank" rel="noopener">ruvnet/claude-flow</a><span class="type">Multi-agent swarm orchestration (314 MCP tools)</span></td><td class="gate m">D</td><td class="gate mm">F</td><td class="gate m">D</td><td class="gate m">D</td><td class="reco Reject">Reject</td><td class="usecase">Multi-agent swarm orchestration for an exploratory research demo.<span class="src"><a href="https://github.com/ruvnet/claude-flow" target="_blank" rel="noopener">https://github.com/ruvnet/claude-flow</a></span></td></tr>
+  </tbody>
+</table>
+
+<div class="section-head">Around Claude Code</div>
+<table class="audits">
+  <thead>
+    <tr>
+      <th>Tool</th>
+      <th>Obs</th>
+      <th>Cost</th>
+      <th>Simp</th>
+      <th>Corr</th>
+      <th>Verdict</th>
+      <th>Use case &amp; source</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr><td class="tool"><a href="https://github.com/mbrian23/claude-tool-audit/blob/main/examples/ccusage.md" target="_blank" rel="noopener">ccusage</a><span class="type">Local CLI / cost analyzer</span></td><td class="gate pp">A+</td><td class="gate pp">A+</td><td class="gate pp">A+</td><td class="gate pp">A+</td><td class="reco Buy">Buy</td><td class="usecase">Local cost analyzer — makes the Cost gate enforceable by surfacing<span class="src"><a href="https://github.com/ryoppippi/ccusage" target="_blank" rel="noopener">https://github.com/ryoppippi/ccusage</a></span></td></tr>
+<tr><td class="tool"><a href="https://github.com/mbrian23/claude-tool-audit/blob/main/examples/claudia.md" target="_blank" rel="noopener">claudia</a><span class="type">Desktop GUI / session manager (Tauri)</span></td><td class="gate p">A</td><td class="gate pp">A+</td><td class="gate p">A</td><td class="gate p">A</td><td class="reco Buy">Buy</td><td class="usecase">Visual dashboard for a team that wants to see all running sessions<span class="src"><a href="https://github.com/getAsterisk/claudia" target="_blank" rel="noopener">https://github.com/getAsterisk/claudia</a></span></td></tr>
+<tr><td class="tool"><a href="https://github.com/mbrian23/claude-tool-audit/blob/main/examples/claude-code-router.md" target="_blank" rel="noopener">claude-code-router</a><span class="type">CLI wrapper — routes requests to DeepSeek / Gemini / Groq / etc.</span></td><td class="gate m">D</td><td class="gate pp">A+</td><td class="gate eq">C</td><td class="gate m">D</td><td class="reco Reject">Reject</td><td class="usecase">Routing Claude Code requests to alternative LLM vendors to cut cost<span class="src"><a href="https://github.com/musistudio/claude-code-router" target="_blank" rel="noopener">https://github.com/musistudio/claude-code-router</a></span></td></tr>
+  </tbody>
+</table>
+
+<p class="footer">
+Generated from <code>examples/*.md</code>. The rubric lives in
+<a href="https://github.com/mbrian23/claude-tool-audit/blob/main/references/gates.md">references/gates.md</a>
+— the rule is <strong>no averaging, no summing</strong>: a single failing gate drops the tool, regardless of the others.
+Scores are per-<em>use case</em>, not per-tool. Same primitive used wrong = different scores.
+</p>
+</main>
+</body>
+</html>
