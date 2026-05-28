@@ -127,7 +127,7 @@ body {
   line-height: 1.5;
 }
 header {
-  max-width: 1100px;
+  max-width: 1400px;
   margin: 0 auto 28px;
 }
 header h1 {
@@ -147,7 +147,7 @@ header a { color: var(--accent); text-decoration: none; }
 header a:hover { text-decoration: underline; }
 
 main {
-  max-width: 1100px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
@@ -189,10 +189,12 @@ td.tool a {
 }
 td.tool a:hover { color: var(--accent); }
 td.tool .type { color: var(--muted); font-size: 11px; display: block; margin-top: 2px; }
-td.usecase { color: var(--fg); max-width: 360px; }
-td.usecase .src { display: block; color: var(--muted); font-size: 11px; margin-top: 4px; }
+td.usecase { color: var(--fg); min-width: 380px; }
+td.usecase .src { display: block; color: var(--muted); font-size: 11px; margin-top: 4px; word-break: break-all; }
 td.usecase .src a { color: var(--muted); text-decoration: none; }
 td.usecase .src a:hover { color: var(--accent); }
+table.audits { table-layout: auto; }
+table.audits td, table.audits th { white-space: normal; }
 td.reco {
   font-weight: 600;
   text-align: center;

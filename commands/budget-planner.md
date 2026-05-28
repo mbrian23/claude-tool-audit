@@ -1,5 +1,5 @@
 ---
-description: Set per-category budgets for a Claude Code project across the seven rubric dimensions, and recommend a vendoring strategy per category. Optionally writes budget.md and vendoring.md into the project.
+description: Set per-gate letter budgets for a Claude Code project across the four gates (Obs / Cost / Simp / Corr, A+..F) plus an optional fifth gate, and recommend a vendoring strategy per category. Optionally writes budget.md and vendoring.md into the project.
 argument-hint: "[optional: project name or one-line description]"
 allowed-tools: ["Read", "Write", "AskUserQuestion", "Bash"]
 ---
