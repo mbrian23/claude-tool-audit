@@ -1,0 +1,13 @@
+{
+  "name": "claude-tool-audit",
+  "version": "0.1.0",
+  "description": "Interactive auditor for tools added to Claude Code projects. Scores candidate tools and primitives across cost, accuracy, governance, latency, lock-in, blast radius and team familiarity; recommends per-category budgets and a vendoring strategy.",
+  "author": {
+    "name": "mbrian23",
+    "url": "https://github.com/mbrian23"
+  },
+  "homepage": "https://github.com/mbrian23/claude-tool-audit",
+  "repository": "https://github.com/mbrian23/claude-tool-audit",
+  "license": "MIT",
+  "keywords": ["audit", "claude-code", "mcp", "scoring", "budget", "vendoring"]
+}
