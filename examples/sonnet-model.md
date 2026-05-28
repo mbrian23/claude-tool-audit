@@ -2,6 +2,7 @@
 
 **Source:** Anthropic — first-party model
 **Type:** Model selection
+**Install:** N/A — model selection, no install step
 **Project context assumed:** Any project; Sonnet vs Opus is the decision.
 
 ## Surface

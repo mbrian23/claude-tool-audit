@@ -2,6 +2,7 @@
 
 **Source:** Vercel-hosted MCP server, OAuth-based
 **Type:** MCP server (hosted, OAuth bearer)
+**Install:** **Hosted, OAuth click-through** ▸ same shape as Slack.
 **Project context assumed:** Internal product on Vercel, multi-month horizon, business data.
 
 ## Surface

@@ -45,6 +45,20 @@ interactive debugging in a dev session."
 
 ### 2. Enumerate the tool's surface
 
+**First, the install-time check** (this comes before everything else):
+
+- What command installs the tool? (`npm install`, `pip install`, `git clone +
+  /plugin install`, a curl-pipe-shell, etc.)
+- Does install run any code — a `postinstall` script, a `setup.py`, a bootstrap
+  binary, a vendor's launcher?
+- Is that code readable before it runs? Pinnable by version / SHA?
+- If the install path itself is a black box, **stop scoring** and report it.
+  The Obs gate cannot be A+ when install is opaque.
+
+Capture as a one-line `**Install:**` field in the audit file.
+
+**Then enumerate the runtime surface**:
+
 If the candidate is an MCP server:
 
 - Read its docs or `tools/list` if available.
@@ -59,7 +73,8 @@ If the candidate is a hook, skill, sub-agent, or CLI:
 - Identify whether it spawns LLM calls.
 
 Black-box smells from `${CLAUDE_PLUGIN_ROOT}/references/black-box-risks.md` apply
-here. Note any that fire — each is a letter knock at scoring time.
+here — including the **install-time** smell which knocks Obs by −1 (postinstall
+readable) or −2 (no audit possible). Apply at most one knock per smell.
 
 ### 3. Score the four gates
 
@@ -113,6 +128,7 @@ Otherwise present inline and stop.
 
 **Source:** <link>
 **Type:** <MCP server / hook / sub-agent / CLI / other>
+**Install:** <one line — what runs at install time, is it readable, pinnable>
 **Project context assumed:** <prototype / internal / public-facing>
 
 ## Surface

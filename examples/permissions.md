@@ -2,6 +2,7 @@
 
 **Source:** https://code.claude.com/docs/en/permissions
 **Type:** First-party primitive (config layer, before any plugin)
+**Install:** N/A — built into Claude Code; configured in `.claude/settings.json`
 **Project context assumed:** Every project.
 
 ## Surface

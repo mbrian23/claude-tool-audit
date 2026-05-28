@@ -2,6 +2,7 @@
 
 **Source:** Anthropic — first-party model
 **Type:** Model selection
+**Install:** N/A — model selection, no install step
 **Project context assumed:** Sub-agent worker pools, cheap audit hooks.
 
 ## Surface

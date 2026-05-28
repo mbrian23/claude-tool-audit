@@ -2,6 +2,7 @@
 
 **Source:** https://code.claude.com/docs/en/hooks
 **Type:** First-party primitive (PreToolUse / PostToolUse / Stop)
+**Install:** N/A — a `hooks.json` and shell scripts in your own repo
 **Project context assumed:** Any project that has a rule worth enforcing deterministically.
 
 ## Surface

@@ -2,6 +2,7 @@
 
 **Source:** Claude Code persistent file-based memory at `~/.claude/projects/.../memory/`
 **Type:** First-party primitive
+**Install:** N/A — first-party, files written to `~/.claude/projects/.../memory/`
 **Project context assumed:** Long-running projects with cross-session context.
 
 ## Surface

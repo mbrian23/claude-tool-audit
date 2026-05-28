@@ -2,6 +2,7 @@
 
 **Source:** Anthropic claude.ai built-in MCP
 **Type:** MCP server (hosted, OAuth bearer)
+**Install:** **Hosted, claude.ai built-in** ▸ no local install; broad OAuth scope is the runtime knock.
 **Project context assumed:** Personal use only — **forbidden for client / business data**.
 
 ## Surface

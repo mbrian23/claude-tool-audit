@@ -2,6 +2,7 @@
 
 **Source:** https://github.com/upstash/context7
 **Type:** MCP server (hosted, HTTP)
+**Install:** **Hosted, OAuth click-through** ▸ no local code execution at adoption. Obs unaffected by install path; runtime opacity is the issue.
 **Project context assumed:** Internal product, multi-month horizon, business data.
 
 ## Surface

@@ -2,6 +2,7 @@
 
 **Source:** https://github.com/obra/superpowers
 **Type:** Plugin (sub-agent methodology — TDD + brainstorming + 2-stage review)
+**Install:** **`/plugin install`** ▸ markdown agents + commands. Readable. No code at install.
 **Project context assumed:** Multi-month product where correctness justifies the bill.
 
 ## Surface

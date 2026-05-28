@@ -2,6 +2,7 @@
 
 **Source:** https://code.claude.com/docs/en/memory
 **Type:** First-party primitive (always-on context file)
+**Install:** N/A — a markdown file you author; no install step
 **Project context assumed:** Any project that has more than one contributor.
 
 ## Surface

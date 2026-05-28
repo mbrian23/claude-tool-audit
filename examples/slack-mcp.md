@@ -2,6 +2,7 @@
 
 **Source:** Anthropic-hosted MCP server, OAuth-based
 **Type:** MCP server (hosted, OAuth bearer)
+**Install:** **Hosted, OAuth click-through** ▸ no local code. Runtime auth-scope smell does the damage, not install.
 **Project context assumed:** Internal product, multi-month horizon, business data.
 
 ## Surface

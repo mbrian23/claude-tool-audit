@@ -28,6 +28,7 @@ USE_CASE = re.compile(r"^\*\*Use case:\*\*\s*(.+?)\s*$", re.MULTILINE)
 ROW = re.compile(r"^\|\s*([A-Za-z][A-Za-z+ ]*?)\s*\|\s*(A\+|[ABCDF])\s*\|\s*([^|]*?)\s*\|\s*$")
 SOURCE = re.compile(r"^\*\*Source:\*\*\s*(.+?)\s*$", re.MULTILINE)
 TYPE = re.compile(r"^\*\*Type:\*\*\s*(.+?)\s*$", re.MULTILINE)
+INSTALL = re.compile(r"^\*\*Install:\*\*\s*(.+?)\s*$", re.MULTILINE)
 RECO = re.compile(r"^\*\*(Build|Buy|Wrap|Vendor|Defer|Reject)\*\*", re.MULTILINE)
 HEADING = re.compile(r"^#\s+(.+?)\s*$", re.MULTILINE)
 GITHUB_RAW_BASE = "https://github.com/mbrian23/claude-tool-audit/blob/main/examples"
@@ -40,6 +41,7 @@ class Audit:
     title: str = ""
     source: str = ""
     type_: str = ""
+    install: str = ""
     use_case: str = ""
     scores: dict[str, str] = field(default_factory=dict)
     recommendation: str = ""
@@ -66,6 +68,10 @@ def parse(path: Path) -> Audit:
     t = TYPE.search(text)
     if t:
         a.type_ = t.group(1).strip()
+
+    i = INSTALL.search(text)
+    if i:
+        a.install = i.group(1).strip()
 
     m = SCORES_HEADING.search(text)
     if not m:
@@ -102,6 +108,16 @@ def linkify_source(src: str) -> str:
         url = m.group(1)
         return f'<a href="{html.escape(url)}" target="_blank" rel="noopener">{html.escape(url)}</a>'
     return html.escape(src)
+
+
+def render_install(install: str) -> str:
+    """Render the install line with light markdown emphasis preserved."""
+    if not install:
+        return ""
+    s = html.escape(install)
+    s = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", s)
+    s = re.sub(r"`(.+?)`", r"<code>\1</code>", s)
+    return s
 
 
 CSS = """
@@ -190,6 +206,8 @@ td.tool a {
 td.tool a:hover { color: var(--accent); }
 td.tool .type { color: var(--muted); font-size: 11px; display: block; margin-top: 2px; }
 td.usecase { color: var(--fg); min-width: 380px; }
+td.usecase .install { display: block; color: var(--gold); font-size: 11px; margin-top: 6px; }
+td.usecase .install code { font-size: 10px; background: rgba(255,209,102,0.08); padding: 1px 4px; border-radius: 2px; }
 td.usecase .src { display: block; color: var(--muted); font-size: 11px; margin-top: 4px; word-break: break-all; }
 td.usecase .src a { color: var(--muted); text-decoration: none; }
 td.usecase .src a:hover { color: var(--accent); }
@@ -251,11 +269,13 @@ td.reco.Reject { color: var(--rival); }
 
 
 CATEGORY_ORDER = [
-    ("First-party primitives", ["permissions", "claude-md-tight", "claude-md-bloated", "hooks-lint", "hooks-chained", "auto-memory"]),
+    ("First-party primitives", ["permissions", "claude-md-tight", "claude-md-bloated", "hooks-lint", "hooks-chained", "skills-primitive", "subagents-isolation", "auto-memory"]),
+    ("Slash commands", ["clear-command", "memory-command", "loop-command"]),
     ("Models", ["sonnet-model", "haiku-model"]),
-    ("MCP servers", ["playwright-mcp", "context7-mcp", "slack-mcp", "vercel-mcp", "gmail-drive-mcp"]),
-    ("Plugins & frameworks", ["pr-review-toolkit", "obra-superpowers", "claude-flow"]),
+    ("MCP servers", ["playwright-mcp", "context7-mcp", "slack-mcp", "vercel-mcp", "gmail-drive-mcp", "mermaid-mcp", "generic-vendor-mcp"]),
+    ("Plugins & frameworks", ["pr-review-toolkit", "obra-superpowers", "superclaude-framework", "wshobson-agents", "claude-flow"]),
     ("Around Claude Code", ["ccusage", "claudia", "claude-code-router"]),
+    ("This plugin (dogfood)", ["claude-tool-audit-self"]),
 ]
 
 
@@ -287,8 +307,13 @@ def render_row(a: Audit) -> str:
         letter = a.scores.get(g, "—")
         cls = LETTER_CLASS.get(letter, "")
         cells.append(f'<td class="gate {cls}">{html.escape(letter)}</td>')
+    install_html = (
+        f'<span class="install">▸ install ▸ {render_install(a.install)}</span>'
+        if a.install else ""
+    )
     usecase = (
         f'<td class="usecase">{html.escape(a.use_case)}'
+        f'{install_html}'
         f'<span class="src">{linkify_source(a.source)}</span>'
         f'</td>'
     )

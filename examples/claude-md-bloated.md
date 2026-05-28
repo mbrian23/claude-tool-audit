@@ -2,6 +2,7 @@
 
 **Source:** Same primitive as `claude-md-tight.md`. Same docs, same file.
 **Type:** First-party primitive (always-on context file)
+**Install:** N/A — a markdown file you author; no install step
 **Project context assumed:** Any project that has more than one contributor.
 
 This file exists to demonstrate that **the same tool scores differently for

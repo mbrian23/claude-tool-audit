@@ -2,6 +2,7 @@
 
 **Source:** https://github.com/ruvnet/claude-flow
 **Type:** Multi-agent swarm orchestration (314 MCP tools)
+**Install:** **npm install + MCP server bootstrap** ▸ 314-tool server runs at session start. **Cannot fully audit at install time.** **−2 Obs.**
 **Project context assumed:** Anything beyond a research demo.
 
 ## Surface
@@ -11,7 +12,11 @@ Heavy. Opinionated. Vendor-controlled prompts inside the swarm.
 
 ## Smells
 
-- **Tool surface ≫ docs.** 314 tools, README explains a handful. **Knock: −1 Obs.**
+- **Install-time code execution.** The 314-tool MCP server bootstraps at
+  session start; pre-use audit of the runtime is impractical at scale.
+  **Knock: −1 Obs.**
+- **Tool surface ≫ docs.** 314 tools, README explains a handful.
+  **Knock: −1 Obs.**
 - **Agent recursion.** Swarm-of-swarms — call count is not bounded by user
   intent. **Cost capped at F** per `cost-risks.md`.
 - **Vendor-controlled prompt/model.** The orchestrator's internal prompts shape

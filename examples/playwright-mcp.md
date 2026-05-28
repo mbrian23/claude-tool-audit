@@ -2,6 +2,7 @@
 
 **Source:** https://github.com/microsoft/playwright-mcp
 **Type:** MCP server (stdio, runs locally)
+**Install:** **npm install + npx** ▸ Playwright binary install runs setup scripts (Microsoft-signed, pinnable by version, readable). Not a smell; the runtime surface is the issue.
 **Project context assumed:** Internal product, multi-month horizon, business data.
 
 ## Surface

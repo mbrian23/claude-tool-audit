@@ -2,6 +2,7 @@
 
 **Source:** Anthropic-published plugin (in this marketplace)
 **Type:** Plugin (6 specialized review sub-agents)
+**Install:** **`/plugin install`** ▸ Anthropic-published plugin; no postinstall code. Markdown agents only.
 **Project context assumed:** Any project shipping PRs with non-trivial diffs.
 
 ## Surface

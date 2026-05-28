@@ -2,6 +2,7 @@
 
 **Source:** https://github.com/getAsterisk/claudia
 **Type:** Desktop GUI / session manager (Tauri)
+**Install:** **Tauri desktop installer** ▸ signed app bundle, standard macOS/Linux install flow. Readable source.
 **Project context assumed:** Teams that prefer a dashboard alongside the CLI.
 
 ## Surface

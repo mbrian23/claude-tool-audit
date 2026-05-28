@@ -2,6 +2,7 @@
 
 **Source:** https://github.com/musistudio/claude-code-router
 **Type:** CLI wrapper — routes requests to DeepSeek / Gemini / Groq / etc.
+**Install:** **`npm install` + config** ▸ wrapper code itself is small and readable; the routing destinations are the runtime risk, not install.
 **Project context assumed:** Anything beyond a personal hobby account.
 
 ## Surface

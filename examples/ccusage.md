@@ -2,6 +2,7 @@
 
 **Source:** https://github.com/ryoppippi/ccusage
 **Type:** Local CLI / cost analyzer
+**Install:** **`npm install -g ccusage`** ▸ single binary; no postinstall code at version-pinned releases. Readable. Pinnable.
 **Project context assumed:** Every Claude Code project.
 
 ## Surface

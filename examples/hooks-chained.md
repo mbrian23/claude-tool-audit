@@ -2,6 +2,7 @@
 
 **Source:** Same primitive as `hooks-lint.md`. Same docs.
 **Type:** First-party primitive (PreToolUse / PostToolUse / Stop)
+**Install:** N/A — `hooks.json` + shell scripts; supply chain risk lives in *what your scripts call out to*
 **Project context assumed:** Any project that's reached for hooks for the wrong job.
 
 This file demonstrates **same tool, different use, very different scores** — the
