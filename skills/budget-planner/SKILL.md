@@ -1,7 +1,6 @@
 ---
 name: budget-planner
 description: Helps the user set per-gate budgets for a new Claude Code project — Obs, Cost, Simp, Corr, and optionally a fifth gate — and recommends a vendoring strategy. Interactive scoping by default, optionally writes budget.md and vendoring.md into the project. Use when the user invokes "/claude-tool-audit:budget-planner", asks to "plan a Claude Code budget", "decide my tooling budget", "scope a new Claude Code project", or "figure out what to buy vs build vs vendor".
-argument-hint: "[optional: project name or one-line description]"
 allowed-tools: ["Read", "Write", "AskUserQuestion", "Bash"]
 version: 0.1.0
 ---

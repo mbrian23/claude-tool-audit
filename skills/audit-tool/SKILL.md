@@ -1,7 +1,6 @@
 ---
 name: audit-tool
 description: Walks the user through auditing one candidate tool (MCP server, hook, sub-agent, skill, third-party CLI) against the four gates. Interactive by default. Produces a scored markdown file the compare-scores script can parse. Use when the user invokes "/claude-tool-audit:audit-tool", asks to "audit a tool", "score this MCP server", or "evaluate adding X to my Claude Code project".
-argument-hint: "[tool-name or description]"
 allowed-tools: ["Read", "Write", "Bash", "AskUserQuestion", "WebFetch"]
 version: 0.1.0
 ---

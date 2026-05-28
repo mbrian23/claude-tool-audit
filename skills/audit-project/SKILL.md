@@ -1,7 +1,6 @@
 ---
 name: audit-project
 description: Scans the current repo's Claude Code setup — .claude/, plugin configs, .mcp.json, hooks.json, sub-agents, skills — and audits the portfolio against the four gates. Use when the user invokes "/claude-tool-audit:audit-project", asks to "audit my project's tools", "review my Claude setup", "check what's in .claude/", or "score everything we've added".
-argument-hint: "[optional: path to project root, defaults to cwd]"
 allowed-tools: ["Read", "Bash", "Glob", "Grep", "AskUserQuestion", "Write"]
 version: 0.1.0
 ---
